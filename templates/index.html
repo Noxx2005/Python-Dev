@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Phishing Email Checker</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f9f9f9;
+            color: #333;
+            line-height: 1.6;
+            overflow-x: hidden;
+        }
+
+        /* Navigation bar */
+        nav {
+            background-color: #333;
+            padding: 15px;
+            display: flex;
+            align-items: center;
+        }
+
+        nav .logo {
+            height: 45px;
+            width: auto;
+        }
+
+        /* Main content area */
+        #chatspace {
+            width: 60%;
+            margin: 40px auto;
+            background-color: white;
+            border-radius: 10px;
+            padding: 20px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        h1 {
+            text-align: center;
+            color: black;
+            font-size: 24px;
+            margin-bottom: 20px;
+            padding: 5px 10px;
+            border-bottom: 1px solid #ffdd59;
+        }
+
+        label {
+            font-size: 16px;
+            color: #333;
+            margin-bottom: 10px;
+            display: block;
+        }
+
+        textarea {
+            width: 100%;
+            padding: 5px 15px;
+            font-size: 16px;
+            border: 1px solid #ccc;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            outline: none;
+            transition: border-color 0.3s ease;
+            height: 180px;
+            resize: none;
+            overflow: auto;
+            color: #333;
+            font-size: 14px;
+        }
+
+        textarea:focus {
+            border:1px solid #ffdd59;
+        }
+
+        button {
+            width: 100%;
+            padding: 15px;
+            font-size: 18px;
+            background-color: #ffdd59;
+            color: black;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+
+        button:hover {
+            background-color: #e6c944;
+        }
+
+        /* Result area */
+        #result {
+            margin-top: 20px;
+            padding: 20px;
+            text-align: center;
+            border-radius: 10px;
+            background-color: white;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            display: none;
+        }
+
+        .safe {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: darkgrey;
+        }
+
+        .safe .icon {
+            background-color: green;
+            color: white;
+            font-size: 20px;
+            font-weight: bold;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 10px;
+        }
+
+        .phishing {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: rgb(104, 104, 104);
+        }
+
+        .phishing .icon {
+            background-color: red;
+            color: white;
+            font-size: 20px;
+            font-weight: bold;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 10px;
+        }
+
+        /* Footer */
+        footer {
+            margin-top: 20px;
+            text-align: center;
+            font-size: 14px;
+            color: rgb(252, 245, 245);
+            background-color: #333;
+            padding: 20px 20px;
+            text-align: center;
+        }
+    </style>
+</head>
+
+<body>
+    <!-- Navigation bar -->
+    <nav>
+        <img class="logo" src="static/mailchek1_1-removeb.png" alt="Logo image">
+    </nav>
+
+    <!-- Main content -->
+    <div id="chatspace">
+        <h1>Check Your Email Status</h1>
+        <label for="smsInput">Enter Mail Content:</label>
+        <textarea wrap="hard" id="smsInput" placeholder="Paste your email content here..."></textarea>
+        <button onclick="predict()">Analyze</button>
+        <div id="result"></div>
+    </div>
+
+    <!-- Footer -->
+
+    <br><br><br>
+    <footer>
+        &copy; 2024, MailChek
+    </footer>
+
+    <script>
+        function predict() {
+            const inputData = {
+                smsInput: document.getElementById('smsInput').value
+            };
+
+            fetch('/predict', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(inputData)
+            })
+                .then(response => response.json())
+                .then(data => {
+                    const resultDiv = document.getElementById('result');
+                    resultDiv.style.display = "block";
+
+                    if (data.result === "The mail is safe to open") {
+                        resultDiv.innerHTML = `
+                        <div class="safe">
+                            <div class="icon">&#10003;</div>
+                            <p>${data.result} <br> Confidence: ${data.confidence}</p>
+                        </div>
+                    `;
+                    } else {
+                        resultDiv.innerHTML = `
+                        <div class="phishing">
+                            <div class="icon">X</div>
+                            <p>${data.result} <br> Confidence: ${data.confidence}</p>
+                        </div>
+                    `;
+                    }
+                })
+                .catch(error => console.error('Error:', error));
+        }
+    </script>
+</body>
+
+</html>
